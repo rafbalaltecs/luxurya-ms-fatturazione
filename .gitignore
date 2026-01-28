@@ -69,7 +69,6 @@ Thumbs.db
 # Application specific
 /var/fatture/
 /tmp/fatture/
-*.p12
 *.pfx
 
 # Database
