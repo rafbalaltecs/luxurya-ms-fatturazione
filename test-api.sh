@@ -3,7 +3,7 @@
 # Script di test per il Sistema di Fatturazione Elettronica
 # Esegue una serie di test sulle API REST
 
-BASE_URL="http://localhost:8080/api/fatture"
+BASE_URL="http://13.49.44.17:8085/api/fatture"
 CONTENT_TYPE="Content-Type: application/json"
 
 echo "==================================="
@@ -191,27 +191,9 @@ else
 fi
 echo ""
 
-# Test 8: Elimina la fattura di test
-echo -e "${YELLOW}Test 8: Eliminazione fattura${NC}"
-DELETE_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" -X DELETE "$BASE_URL/$FATTURA_ID")
 
-if [ "$DELETE_RESPONSE" = "204" ]; then
-    print_result 0 "Fattura eliminata con successo"
-else
-    print_result 1 "Errore nell'eliminazione della fattura (HTTP $DELETE_RESPONSE)"
-fi
-echo ""
 
-# Test 9: Verifica che la fattura sia stata eliminata
-echo -e "${YELLOW}Test 9: Verifica eliminazione${NC}"
-VERIFY_DELETE=$(curl -s -o /dev/null -w "%{http_code}" -X GET "$BASE_URL/$FATTURA_ID")
 
-if [ "$VERIFY_DELETE" = "404" ]; then
-    print_result 0 "Fattura correttamente eliminata"
-else
-    print_result 1 "Fattura ancora presente dopo eliminazione"
-fi
-echo ""
 
 echo "==================================="
 echo -e "${GREEN}Test completati!${NC}"

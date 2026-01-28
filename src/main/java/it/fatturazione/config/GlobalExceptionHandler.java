@@ -1,5 +1,6 @@
 package it.fatturazione.config;
 
+import it.fatturazione.exception.AuthException;
 import it.fatturazione.exception.FatturaNotFoundException;
 import it.fatturazione.exception.FirmaDigitaleException;
 import it.fatturazione.exception.SdiException;
@@ -28,6 +29,17 @@ public class GlobalExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+    }
+
+    @ExceptionHandler(AuthException.class)
+    public ResponseEntity<ErrorResponse> handleAuth(AuthException ex) {
+        log.error("Auth errato , controllare token JWT: {}", ex.getMessage());
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                ex.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
     @ExceptionHandler(FirmaDigitaleException.class)
