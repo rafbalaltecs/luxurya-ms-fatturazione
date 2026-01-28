@@ -1,4 +1,4 @@
- Stage Runtime (single-stage build perché il JAR è già buildato da Jenkins)
+# Stage Runtime (single-stage build perché il JAR è già buildato da Jenkins)
 FROM eclipse-temurin:17-jre-alpine
 
 # Crea un utente non-root per sicurezza
