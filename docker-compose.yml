@@ -1,0 +1,93 @@
+version: '3.8'
+
+services:
+  # Database PostgreSQL
+  postgres:
+    image: postgres:15-alpine
+    container_name: fatturazione-db
+    environment:
+      POSTGRES_DB: fatturazione_db
+      POSTGRES_USER: fatturazione_user
+      POSTGRES_PASSWORD: fatturazione_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database-utils.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fatturazione_user -d fatturazione_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - fatturazione-network
+
+  # Applicazione Spring Boot
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: fatturazione-app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Database
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/postgres
+      SPRING_DATASOURCE_USERNAME: fatturazione_user
+      SPRING_DATASOURCE_PASSWORD: fatturazione_password
+      
+      # SDI (modifica con i tuoi valori)
+      SDI_WS_URL: https://testservizi.fatturapa.it/ricevi_file
+      SDI_WS_NOTIFICHE_URL: https://testservizi.fatturapa.it/ricevi_notifica
+      SDI_TRASMITTENTE_CODICE: AAAAAA11A11A111A
+      
+      # Firma digitale (monta il certificato come volume)
+      FIRMA_KEYSTORE_PATH: /app/certs/certificato.p12
+      FIRMA_KEYSTORE_PASSWORD: ${KEYSTORE_PASSWORD:-changeit}
+      FIRMA_KEY_ALIAS: ${KEY_ALIAS:-mykey}
+      FIRMA_KEY_PASSWORD: ${KEY_PASSWORD:-changeit}
+
+      # Storage
+      FATTURA_STORAGE_PATH: /var/fatture
+      FATTURA_TEMP_PATH: /tmp/fatture
+      
+      # JPA
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_SHOW_SQL: "false"
+    ports:
+      - "8080:8080"
+    volumes:
+      - fatture_data:/var/fatture
+      - ./certs:/app/certs:ro  # Monta la directory con i certificati
+    networks:
+      - fatturazione-network
+    restart: unless-stopped
+
+  # PgAdmin (opzionale, per gestire il database via web)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: fatturazione-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@fatturazione.it
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    networks:
+      - fatturazione-network
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+    driver: local
+  fatture_data:
+    driver: local
+  pgadmin_data:
+    driver: local
+
+networks:
+  fatturazione-network:
+    driver: bridge
