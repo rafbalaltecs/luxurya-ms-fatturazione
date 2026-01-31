@@ -1,5 +1,6 @@
 package it.fatturazione.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import it.fatturazione.dto.FatturaRequestDTO;
 import it.fatturazione.dto.FatturaResponseDTO;
 import it.fatturazione.entity.Fattura;
@@ -18,6 +19,7 @@ import java.util.List;
 @RequestMapping("/api/fatture")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Gestione Fatturazione")
 public class FatturaController {
 
     private final FatturaService fatturaService;
