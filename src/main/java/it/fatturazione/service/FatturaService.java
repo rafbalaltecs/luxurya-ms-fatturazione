@@ -18,6 +18,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,21 @@ public class FatturaService {
 
     @Value("${fattura.storage.path}")
     private String storagePath;
+
+    public List<FatturaResponseDTO> searchFattura(
+            final BigDecimal from,
+            final BigDecimal to
+    ){
+        final List<FatturaResponseDTO> responseDTOS = new ArrayList<>();
+        final List<Fattura> fatturaList = fatturaRepository.findByTotalBetween(from , to);
+        if(!fatturaList.isEmpty()){
+            for(final Fattura fattura: fatturaList){
+                responseDTOS.add(FatturaResponseDTO.fromEntity(fattura));
+            }
+        }
+        return responseDTOS;
+    }
+
 
     @Transactional
     public FatturaResponseDTO creaFattura(FatturaRequestDTO request) throws Exception {

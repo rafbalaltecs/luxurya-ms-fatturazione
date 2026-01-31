@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -95,6 +96,15 @@ public class FatturaController {
         log.info("Richiesta dettaglio fattura numero: {}", numeroFattura);
         FatturaResponseDTO response = fatturaService.getFatturaByNumero(numeroFattura);
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<FatturaResponseDTO>> searchFrombeetwen(
+            @RequestParam(value = "from") BigDecimal from,
+            @RequestParam(value = "to") BigDecimal to,
+            @RequestParam(value = "target", required = false) BigDecimal target
+            ) {
+        return ResponseEntity.ok(fatturaService.searchFattura(from, to));
     }
 
     @GetMapping
