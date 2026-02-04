@@ -23,6 +23,15 @@ public class AuthServiceImpl implements AuthService {
         return userDataShared;
     }
 
+
+    @Override
+    public Boolean existValidToken(String token) {
+        if(StringUtils.isNotEmpty(token)){
+           return redisService.exists(token);
+        }
+        return Boolean.FALSE;
+    }
+
     @Override
     public void userFindByToken(String token) {
         if(StringUtils.isNotEmpty(token)){

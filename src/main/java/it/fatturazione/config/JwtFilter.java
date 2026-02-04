@@ -45,10 +45,18 @@ public class JwtFilter implements Filter {
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             resp.setContentType("application/json");
-            throw new AuthException("Missing or invalid Authorization header - logic action to ms-anagrafica");
+            resp.getWriter().write("{\"error\":\"Missing or invalid Authorization header - login action to ms-anagrafica\"}");
+            return;
+        }
+        final String token = authHeader.substring(7);
+
+        if(!authService.existValidToken(token)){
+            resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            resp.setContentType("application/json");
+            resp.getWriter().write("{\"error\":\"Missing Token On Cache - login action to ms-anagrafica \"}");
+            return;
         }
 
-        String token = authHeader.substring(7);
         authService.userFindByToken(token);
         final UserDataShared userDataShared = authService.getUserDataShared();
 
